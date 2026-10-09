@@ -8,7 +8,9 @@
 [![React](https://img.shields.io/badge/React-19.2-61dafb.svg?logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8.3-646cff.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178c6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Deploy on Vercel](https://img.shields.io/badge/Vercel-Deploy--Ready-black.svg?logo=vercel&logoColor=white)](https://vercel.com/)
+[![Live Demo](https://img.shields.io/badge/Vercel-Live--Demo-0070f3.svg?logo=vercel&logoColor=white)](https://qrforge-liard.vercel.app)
+
+🔗 **Live Application URL:** [https://qrforge-liard.vercel.app](https://qrforge-liard.vercel.app)
 
 ---
 
