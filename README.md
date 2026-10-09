@@ -193,7 +193,7 @@ To prevent users from unintentionally generating unreadable codes, QRForge evalu
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/qrforge.git
+git clone https://github.com/hARSh2018-arch/qrforge.git
 
 # Navigate into the project directory
 cd qrforge
