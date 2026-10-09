@@ -240,47 +240,6 @@ npm run preview
 
 ---
 
-## ☁️ Deployment on Vercel
-
-QRForge is **100% client-side** and deploy-ready for Vercel:
-
-1. Push your code to GitHub.
-2. Sign in to [Vercel](https://vercel.com) and click **"Add New Project"**.
-3. Import your `qrforge` repository.
-4. Leave build settings as default:
-   - **Framework Preset:** Vite
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-5. Click **Deploy**. Your application will be live in seconds with global edge CDN caching!
-
----
-
-## 🧪 Testing Verification Checklist
-
-The application has been verified against the complete recruitment rubric:
-
-- [x] **URL QR:** Valid URL generation, auto-prefixing, validation errors.
-- [x] **Text QR:** Real-time generation, character counter, 2048-char boundary.
-- [x] **Email QR:** `mailto:` payload format, subject/body parameters, email validation.
-- [x] **Phone QR:** `tel:` payload format, country code dropdown, digit validation.
-- [x] **Wi-Fi QR:** Standard MEBKM format, WPA/WEP/None protocols, hidden toggle.
-- [x] **Real-time Live Preview:** Instant canvas rendering with pulsing live indicator.
-- [x] **Color Customization:** Foreground/background color pickers, hex inputs, swatches.
-- [x] **Resolution Scaling:** 256px to 1024px dynamic canvas scaling.
-- [x] **Error Correction Levels:** L, M, Q, H with detailed recovery descriptions.
-- [x] **Quiet Zone Margin:** Slider with visible block values (0 to 8).
-- [x] **Presets:** Instant application of Classic, Midnight, Ocean, Neon, Minimal, Sunset, Emerald.
-- [x] **Scan Reliability:** Low-contrast warning banners, WCAG ratio badge, logo ECC notice.
-- [x] **PNG Download:** Crisp client-side download matching preview exactly (`QRForge-[type]-[timestamp].png`).
-- [x] **SVG Download:** Scalable vector SVG file export.
-- [x] **Copy QR to Clipboard:** Direct image copy with "✓ Copied!" feedback.
-- [x] **Center Logo Upload:** Embedded center logo with protective padding badge.
-- [x] **Recent History:** LocalStorage persistence, thumbnail display, timestamp, reuse configuration, delete card, clear all.
-- [x] **Reset Defaults:** One-click clean reset.
-- [x] **Visual Themes:** Dark futuristic glassmorphic and clean light themes.
-- [x] **Responsive Layout:** 3-column desktop, 2-column tablet, 1-column mobile.
-
----
 
 ## 📸 Screenshots
 
