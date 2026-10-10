@@ -30,8 +30,8 @@ const ERROR_CORRECTION_LEVELS: {
 ];
 
 const RESTRAINED_SWATCHES = [
-  '#000000', '#303631', '#18181b', '#385573', '#243D30',
-  '#FFFFFF', '#FBFAF7', '#F6F5F0', '#F2F5F2', '#E6E8E3'
+  '#20283A', '#4F7DF3', '#8565E8', '#000000', '#25845A', '#0284c7',
+  '#FFFFFF', '#F8FAFF', '#F0F5FF', '#F2EEFF', '#DCEAFF', '#F9FAFB'
 ];
 
 export const CustomizationPanel: React.FC<CustomizationPanelProps> = ({

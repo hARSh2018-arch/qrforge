@@ -58,6 +58,30 @@ export const PRESETS: QRPreset[] = [
     tag: 'Subtle'
   },
   {
+    id: 'indigo',
+    name: 'Bright Blue',
+    description: 'Signature accent blue on pale surface',
+    foreground: '#4F7DF3',
+    background: '#F8FAFF',
+    tag: 'Modern'
+  },
+  {
+    id: 'violet',
+    name: 'Royal Violet',
+    description: 'Vibrant secondary violet on lavender white',
+    foreground: '#8565E8',
+    background: '#F2EEFF',
+    tag: 'Vibrant'
+  },
+  {
+    id: 'slate',
+    name: 'Crisp Slate',
+    description: 'Deep modern slate pattern on pure white',
+    foreground: '#20283A',
+    background: '#FFFFFF',
+    tag: 'Crisp'
+  },
+  {
     id: 'soft-blue',
     name: 'Soft Blue',
     description: 'Muted slate blue on warm ivory',

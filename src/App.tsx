@@ -15,9 +15,11 @@ import { useQRHistory } from './hooks/useQRHistory';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import type { QRConfig } from './types/qr';
 
+import { Sparkles } from 'lucide-react';
+
 export const App: React.FC = () => {
-  // Theme state: defaults to soft light ivory theme per design vision
-  const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('qrforge_theme', 'light');
+  // Theme state: defaults to modern bright light theme
+  const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('qrforge_theme_v2', 'light');
 
   // Active top-level view: 'generate' (default workspace) | 'history' (saved codes)
   const [activeView, setActiveView] = useState<'generate' | 'history'>('generate');
@@ -65,7 +67,7 @@ export const App: React.FC = () => {
   const handleToggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
-    showToast(`Switched to ${nextTheme === 'light' ? 'Light Ivory' : 'Dark Studio'} mode`, 'info');
+    showToast(`Switched to ${nextTheme === 'light' ? 'Bright Light' : 'Dark Studio'} mode`, 'info');
   };
 
   const handleApplyPreset = (presetId: string) => {
@@ -105,9 +107,15 @@ export const App: React.FC = () => {
           <div className="generator-view-container">
             {/* Introductory Hero Text */}
             <div className="generator-intro-header">
-              <h1 className="generator-page-title">Create your QR code</h1>
+              <div className="generator-badge-pill">
+                <Sparkles size={13} className="badge-sparkle-icon" />
+                <span>Modern QR Studio</span>
+              </div>
+              <h1 className="generator-page-title">
+                Create <span className="title-gradient-accent">beautiful</span> QR codes
+              </h1>
               <p className="generator-page-desc">
-                Generate scannable, high-contrast QR codes with instant live preview and custom styling.
+                Fast, privacy-friendly QR codes with high-contrast scan reliability, custom colors, and instant downloads.
               </p>
             </div>
 
