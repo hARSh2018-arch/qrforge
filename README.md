@@ -25,12 +25,16 @@ Rather than a static prototype, QRForge is a **complete, offline-first, client-s
 ## ✨ Features
 
 - **⚡ Zero-Latency Live Preview:** Updates instantly as you type or adjust sliders — no manual "Generate" button required.
-- **🎯 5 Essential QR Payload Encoders:**
+- **🎯 9 Essential RFC-Compliant QR Payload Encoders:**
   - **Website URL:** Real-time URL format validation, protocol detection (`https://`, `http://`), and quick action chips.
   - **Plain Text:** Live character counter with safe limit enforcement (2048 chars) and density warnings.
+  - **Wi-Fi Network:** Standard MEBKM `WIFI:` string formatting with SSID validation, WPA/WEP/Open encryption selection, password visibility toggle, and hidden network support.
+  - **vCard Contact:** Standard vCard 3.0 format for instant address book import (name, phone, email, organization, website).
   - **Email:** Standard RFC-compliant `mailto:` payload encoder with subject, body, and email address validation.
   - **Phone Number:** Standard `tel:` dialer payload with country calling code picker (+91, +1, +44, etc.) and digit validation.
-  - **Wi-Fi Network:** Standard MEBKM `WIFI:` string formatting with SSID validation, WPA/WEP/Open encryption selection, password visibility toggle, and hidden network support.
+  - **SMS Message:** Standard `SMSTO:` payload for mobile messaging with pre-filled message text.
+  - **Map Location:** Geographic coordinates (`geo:`) and Google Maps query search support.
+  - **Calendar Event:** Standard iCalendar (`VEVENT`) scheduling format with date, time, location, and description.
 - **🎨 Deep Design Customization:**
   - **Resolution Slider:** 256px → 1024px dynamic canvas scaling.
   - **Color Picker Engine:** Custom Hex inputs, native color pickers, and instant quick-palette swatches.
@@ -39,34 +43,31 @@ Rather than a static prototype, QRForge is a **complete, offline-first, client-s
   - **Center Logo / Watermark Upload:** Secure image file picker with auto-padded protective badge, border stroke, and automatic ECC warning.
 - **💎 Predefined High-Contrast Presets:**
   - **Classic:** Monochromatic black on pure white.
-  - **Midnight:** Bright slate on deep cybernetic obsidian.
+  - **Bright Blue:** Signature accent blue on pale surface.
+  - **Royal Violet:** Vibrant secondary violet on lavender white.
+  - **Crisp Slate:** Deep modern slate pattern on pure white.
   - **Ocean:** Cobalt blue on crisp icy azure.
-  - **Neon:** Electric cyan on void black.
-  - **Emerald:** Matrix green on dark slate.
-  - **Sunset:** Crimson rose on soft pastel peach.
+  - **Soft Blue:** Muted slate blue on warm ivory.
+  - **Forest:** Deep pine on gentle sage white.
   - **Minimal:** Refined dark zinc on off-white.
+  - **Midnight:** Bright slate on deep cybernetic obsidian.
 - **🛡️ Scan Reliability & WCAG Contrast Engine:**
   - Calculates real-time WCAG 2.1 relative luminance and contrast ratio.
   - Emits clear warnings (`⚠️ Low contrast may affect QR scanning`) when the ratio drops below 3:1.
   - Detects inverted color combinations and provides compatibility advice.
   - Warns when embedding logos with low error correction levels.
-- **💾 Browser LocalStorage Persistence:**
-  - Automatically records generated/downloaded QR codes into **Recent QR Codes**.
+- **💾 Dedicated History View with Local Persistence:**
+  - Automatically records generated/downloaded QR codes into browser storage.
   - Displays thumbnail, payload title, type badge, and relative timestamp.
-  - **Reuse Button:** Instantly restores the entire configuration snapshot (type, content, colors, size, margin, ECC).
-  - **Delete & Clear All:** Manage history with graceful error handling.
+  - **Reuse Button:** Instantly restores the entire configuration snapshot (type, content, colors, size, margin, ECC) back into the active workspace.
+  - **Individual Download & Delete:** Download PNG or SVG directly from history cards, or clear all history with confirmation.
 - **📥 High-Resolution Multi-Format Export:**
   - **Download PNG:** Client-side canvas export at selected resolution (`QRForge-[type]-[timestamp].png`).
   - **Download SVG:** Pure scalable vector graphic export for infinite scalability.
   - **Copy QR to Clipboard:** Direct image blob copy via Clipboard API with fallback.
-  - **Micro-interactions:** Celebration confetti effect on successful export.
-- **🌓 Dark Futuristic & Light Clean Themes:**
-  - Default dark cybernetic glassmorphism with subtle glow effects and soft shadows.
-  - Clean light mode toggle, persisted in LocalStorage.
-- **📱 Fully Responsive:**
-  - Desktop: 3-column dashboard (Sidebar, Editor, Live Preview).
-  - Tablet: 2-column layout.
-  - Mobile: Clean single-column layout with tab navigation between Editor and Live Preview.
+- **📱 Fully Responsive SaaS Workspace:**
+  - Desktop: Cohesive 2-column workspace with sticky live preview.
+  - Mobile & Tablet: Fluid single-column responsive layout with horizontal scroll navigation.
 
 ---
 
@@ -78,7 +79,7 @@ Rather than a static prototype, QRForge is a **complete, offline-first, client-s
 | **Bundler & Tooling** | [Vite 8](https://vitejs.dev/) |
 | **Language** | [TypeScript](https://www.typescriptlang.org/) |
 | **QR Generation Engine** | `qrcode` (HTML5 Canvas & SVG Vector) |
-| **Styling** | Modern CSS3 with CSS Custom Properties, Glassmorphism & Backdrop Filters |
+| **Styling** | Modern CSS3 with CSS Custom Properties, SaaS Color System |
 | **Icons** | [Lucide React](https://lucide.dev/) |
 | **Micro-Interactions** | `canvas-confetti` |
 | **Linter & Quality** | Oxlint & TypeScript Strict Type Checking |
@@ -95,18 +96,21 @@ qrforge/
 ├── src/
 │   ├── components/
 │   │   ├── AboutModal.tsx         # Challenge details & tech spec modal
+│   │   ├── ContactForm.tsx        # vCard 3.0 contact details form
 │   │   ├── CustomizationPanel.tsx # Colors, size, margin, ECC & logo upload
 │   │   ├── EmailForm.tsx          # Mailto form with validation
-│   │   ├── Footer.tsx             # Recruitment footer & GitHub links
-│   │   ├── Header.tsx             # Branding, badge, theme toggle & actions
+│   │   ├── EventForm.tsx          # iCalendar event scheduler form
+│   │   ├── Footer.tsx             # Clean minimal footer & GitHub links
+│   │   ├── Header.tsx             # Branding, navigation tabs & theme toggle
+│   │   ├── HistoryView.tsx        # Dedicated QR history gallery & management
 │   │   ├── Icons.tsx              # Reusable SVG icon components
 │   │   ├── InputPanel.tsx         # Dynamic active form renderer
+│   │   ├── LocationForm.tsx       # Geolocation coordinates & search form
 │   │   ├── PhoneForm.tsx          # Phone form with country codes
 │   │   ├── PresetSelector.tsx     # Color palette presets
 │   │   ├── QRPreview.tsx          # Live canvas, contrast badge & downloads
-│   │   ├── QRTypeSelector.tsx     # 5-type selector tabs with descriptions
-│   │   ├── RecentQRs.tsx          # Local history cards with reuse & delete
-│   │   ├── Sidebar.tsx            # Left column dashboard sidebar
+│   │   ├── QRTypeSelector.tsx     # Segmented content-type navigation bar
+│   │   ├── SMSForm.tsx            # SMS message & phone form
 │   │   ├── TextForm.tsx           # Text form with character counter
 │   │   ├── Toast.tsx              # Floating toast notification system
 │   │   ├── URLForm.tsx            # URL form with protocol helpers
@@ -125,8 +129,8 @@ qrforge/
 │   │   ├── contrast.ts            # Relative luminance & WCAG contrast engine
 │   │   ├── download.ts            # PNG/SVG exporters, clipboard copy & canvas rendering
 │   │   └── payload.ts             # RFC payload generators & schema validators
-│   ├── App.tsx                    # Root dashboard layout coordinator
-│   ├── index.css                  # Master design system & glassmorphism stylesheet
+│   ├── App.tsx                    # Root workspace layout coordinator
+│   ├── index.css                  # Master design system stylesheet
 │   └── main.tsx                   # React root entrypoint
 ├── index.html                     # HTML5 template with Google Fonts
 ├── package.json                   # Dependencies and scripts
