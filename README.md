@@ -18,7 +18,7 @@
 
 **QRForge** is an engineered developer-tool web application built from the ground up for the GDG on Campus SRM Technical Recruitment 2026–27 (Frontend Domain). 
 
-Rather than a static prototype, QRForge is a **complete, offline-first, client-side QR generation powerhouse**. It delivers immediate zero-latency live previews, strict schema validation across 5 QR payload formats, a WCAG 2.1 relative luminance contrast analysis engine with scan-reliability warnings, customizable palettes and presets, center logo watermarking, high-resolution PNG & SVG exports, clipboard copying, and resilient browser LocalStorage history with full snapshot restoration.
+Rather than a static prototype, QRForge is a **complete, offline-first, client-side QR generation powerhouse**. It delivers immediate zero-latency live previews, strict schema validation across 9 QR payload formats, a WCAG 2.1 relative luminance contrast analysis engine with scan-reliability warnings, customizable palettes and presets, center logo watermarking, high-resolution PNG & SVG exports, clipboard copying, and resilient browser LocalStorage history with full snapshot restoration.
 
 ---
 
