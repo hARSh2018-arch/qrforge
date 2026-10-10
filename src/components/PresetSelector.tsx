@@ -1,5 +1,4 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
 import { PRESETS } from '../data/presets';
 import type { QRPreset } from '../types/qr';
 
@@ -13,43 +12,35 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
   onSelectPreset
 }) => {
   return (
-    <div className="preset-selector-container">
+    <div className="preset-selector-section">
       <div className="section-label-row">
-        <div className="flex-align-center gap-2">
-          <Sparkles size={15} className="accent-icon" />
-          <span className="section-eyebrow">Design Presets</span>
-        </div>
-        <span className="field-hint">Instant high-contrast palettes</span>
+        <label className="section-eyebrow">Design Presets</label>
+        <span className="field-hint">High-contrast, scan-tested color palettes</span>
       </div>
 
-      <div className="preset-grid">
+      <div className="preset-chips-scroll" role="radiogroup" aria-label="Color Presets">
         {PRESETS.map((preset: QRPreset) => {
           const isActive = currentPresetId === preset.id;
           return (
             <button
               key={preset.id}
               type="button"
-              className={`preset-card ${isActive ? 'preset-active' : ''}`}
+              role="radio"
+              aria-checked={isActive}
+              className={`preset-pill-btn ${isActive ? 'preset-active' : ''}`}
               onClick={() => onSelectPreset(preset.id)}
-              title={`${preset.name} - ${preset.description}`}
+              title={`${preset.name}: ${preset.description}`}
             >
-              <div
-                className="preset-swatch-box"
+              <span
+                className="preset-swatch-badge"
                 style={{ backgroundColor: preset.background }}
               >
-                <div
-                  className="preset-swatch-inner"
+                <span
+                  className="preset-swatch-dot"
                   style={{ backgroundColor: preset.foreground }}
                 />
-              </div>
-
-              <div className="preset-info">
-                <div className="preset-name-row">
-                  <span className="preset-name">{preset.name}</span>
-                  {preset.tag && <span className="preset-tag">{preset.tag}</span>}
-                </div>
-                <span className="preset-desc">{preset.description}</span>
-              </div>
+              </span>
+              <span className="preset-pill-name">{preset.name}</span>
             </button>
           );
         })}

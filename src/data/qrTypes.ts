@@ -4,7 +4,7 @@ export interface QRTypeMeta {
   type: QRType;
   name: string;
   shortDesc: string;
-  iconName: 'Globe' | 'Type' | 'Mail' | 'Phone' | 'Wifi';
+  iconName: 'Globe' | 'Type' | 'Mail' | 'Phone' | 'Wifi' | 'MessageSquare' | 'User' | 'MapPin' | 'Calendar';
   placeholder: string;
 }
 
@@ -24,25 +24,53 @@ export const QR_TYPES: QRTypeMeta[] = [
     placeholder: 'Enter your message...'
   },
   {
+    type: 'wifi',
+    name: 'Wi-Fi Network',
+    shortDesc: 'Direct zero-friction network connect',
+    iconName: 'Wifi',
+    placeholder: 'Network Name'
+  },
+  {
+    type: 'contact',
+    name: 'Contact Card',
+    shortDesc: 'vCard address book card with full info',
+    iconName: 'User',
+    placeholder: 'Contact Name'
+  },
+  {
     type: 'email',
-    name: 'Email',
+    name: 'Email Prompt',
     shortDesc: 'Pre-filled email compose prompt',
     iconName: 'Mail',
     placeholder: 'user@example.com'
   },
   {
     type: 'phone',
-    name: 'Phone Number',
-    shortDesc: 'Instant one-tap call initiation',
+    name: 'Phone Call',
+    shortDesc: 'Instant one-tap direct dialing',
     iconName: 'Phone',
     placeholder: '1234567890'
   },
   {
-    type: 'wifi',
-    name: 'Wi-Fi Network',
-    shortDesc: 'Direct zero-friction network connect',
-    iconName: 'Wifi',
-    placeholder: 'Network Name'
+    type: 'sms',
+    name: 'SMS Text',
+    shortDesc: 'Pre-filled SMS text message',
+    iconName: 'MessageSquare',
+    placeholder: '1234567890'
+  },
+  {
+    type: 'location',
+    name: 'Map Location',
+    shortDesc: 'Coordinates or Google Maps address',
+    iconName: 'MapPin',
+    placeholder: 'Coordinates or Address'
+  },
+  {
+    type: 'event',
+    name: 'Calendar Event',
+    shortDesc: 'Add event to Google/Apple Calendar',
+    iconName: 'Calendar',
+    placeholder: 'Event Title'
   }
 ];
 

@@ -61,6 +61,57 @@ export function validateWifi(ssid: string): ValidationResult {
   return { isValid: true };
 }
 
+export function validateSms(phone: string): ValidationResult {
+  if (!phone || !phone.trim()) {
+    return { isValid: false, message: 'Please enter a recipient phone number.' };
+  }
+  const cleanDigits = phone.replace(/[\s\-().]/g, '');
+  if (!/^\+?[0-9]{5,16}$/.test(cleanDigits)) {
+    return { isValid: false, message: 'Please enter a valid phone number.' };
+  }
+  return { isValid: true };
+}
+
+export function validateContact(
+  firstName: string,
+  lastName: string,
+  phone: string,
+  email: string
+): ValidationResult {
+  if (!firstName.trim() && !lastName.trim() && !phone.trim() && !email.trim()) {
+    return { isValid: false, message: 'Please provide at least a name, phone number, or email.' };
+  }
+  return { isValid: true };
+}
+
+export function validateLocation(
+  latitude: string,
+  longitude: string,
+  query: string
+): ValidationResult {
+  if (!query.trim() && (!latitude.trim() || !longitude.trim())) {
+    return { isValid: false, message: 'Please provide coordinates or a location search address.' };
+  }
+  if (latitude.trim() || longitude.trim()) {
+    const lat = Number(latitude);
+    const lng = Number(longitude);
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return { isValid: false, message: 'Coordinates must be valid numbers (Latitude -90 to 90, Longitude -180 to 180).' };
+    }
+  }
+  return { isValid: true };
+}
+
+export function validateEvent(title: string, startDate: string): ValidationResult {
+  if (!title || !title.trim()) {
+    return { isValid: false, message: 'Please enter an event title.' };
+  }
+  if (!startDate) {
+    return { isValid: false, message: 'Please select a start date.' };
+  }
+  return { isValid: true };
+}
+
 export function validateConfig(config: QRConfig): ValidationResult {
   switch (config.type) {
     case 'url':
@@ -73,6 +124,23 @@ export function validateConfig(config: QRConfig): ValidationResult {
       return validatePhone(config.data.phone.phoneNumber);
     case 'wifi':
       return validateWifi(config.data.wifi.ssid);
+    case 'sms':
+      return validateSms(config.data.sms.phoneNumber);
+    case 'contact':
+      return validateContact(
+        config.data.contact.firstName,
+        config.data.contact.lastName,
+        config.data.contact.phone,
+        config.data.contact.email
+      );
+    case 'location':
+      return validateLocation(
+        config.data.location.latitude,
+        config.data.location.longitude,
+        config.data.location.query
+      );
+    case 'event':
+      return validateEvent(config.data.event.title, config.data.event.startDate);
     default:
       return { isValid: true };
   }
@@ -124,6 +192,72 @@ export function generatePayload(config: QRConfig): string {
       return `WIFI:S:${escapeWifiString(ssid.trim())};T:${enc};${passPart}${hiddenPart};`;
     }
 
+    case 'sms': {
+      const { countryCode, phoneNumber, message } = config.data.sms;
+      const cleanPhone = phoneNumber.replace(/[\s\-()]/g, '');
+      if (!cleanPhone) return '';
+      const fullNumber = cleanPhone.startsWith('+') ? cleanPhone : `${countryCode}${cleanPhone}`;
+      return message ? `SMSTO:${fullNumber}:${message}` : `SMSTO:${fullNumber}`;
+    }
+
+    case 'contact': {
+      const { firstName, lastName, organization, phone, email, url } = config.data.contact;
+      if (!firstName.trim() && !lastName.trim() && !organization.trim() && !phone.trim() && !email.trim()) {
+        return '';
+      }
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim() || 'Contact';
+      const lines = [
+        'BEGIN:VCARD',
+        'VERSION:3.0',
+        `N:${lastName.trim()};${firstName.trim()};;;`,
+        `FN:${fullName}`
+      ];
+      if (organization.trim()) lines.push(`ORG:${organization.trim()}`);
+      if (phone.trim()) lines.push(`TEL;TYPE=CELL:${phone.trim()}`);
+      if (email.trim()) lines.push(`EMAIL:${email.trim()}`);
+      if (url.trim()) {
+        const fullUrl = url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`;
+        lines.push(`URL:${fullUrl}`);
+      }
+      lines.push('END:VCARD');
+      return lines.join('\n');
+    }
+
+    case 'location': {
+      const { latitude, longitude, query } = config.data.location;
+      if (latitude.trim() && longitude.trim()) {
+        return `geo:${latitude.trim()},${longitude.trim()}`;
+      }
+      if (query.trim()) {
+        return `https://maps.google.com/?q=${encodeURIComponent(query.trim())}`;
+      }
+      return '';
+    }
+
+    case 'event': {
+      const { title, location, startDate, startTime, endDate, endTime, description } = config.data.event;
+      if (!title.trim() || !startDate) return '';
+      const formatDt = (d: string, t: string) => {
+        const cleanD = d.replace(/-/g, '');
+        const cleanT = (t || '00:00').replace(/:/g, '') + '00';
+        return `${cleanD}T${cleanT}`;
+      };
+      const startDt = formatDt(startDate, startTime);
+      const endDt = endDate ? formatDt(endDate, endTime || startTime) : startDt;
+      const lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'BEGIN:VEVENT',
+        `SUMMARY:${title.trim()}`,
+        `DTSTART:${startDt}`,
+        `DTEND:${endDt}`
+      ];
+      if (location.trim()) lines.push(`LOCATION:${location.trim()}`);
+      if (description.trim()) lines.push(`DESCRIPTION:${description.trim()}`);
+      lines.push('END:VEVENT', 'END:VCALENDAR');
+      return lines.join('\n');
+    }
+
     default:
       return '';
   }
@@ -151,5 +285,26 @@ export function getPayloadTitle(config: QRConfig): string {
       const ssid = config.data.wifi.ssid.trim();
       return ssid ? `Wi-Fi: ${ssid}` : 'Untitled Wi-Fi';
     }
+    case 'sms': {
+      const { countryCode, phoneNumber } = config.data.sms;
+      return phoneNumber ? `SMS: ${countryCode} ${phoneNumber}` : 'Untitled SMS';
+    }
+    case 'contact': {
+      const { firstName, lastName } = config.data.contact;
+      const name = `${firstName} ${lastName}`.trim();
+      return name ? `Contact: ${name}` : 'Untitled Contact';
+    }
+    case 'location': {
+      const { query, latitude, longitude } = config.data.location;
+      if (query.trim()) return `Location: ${query.trim()}`;
+      if (latitude.trim() && longitude.trim()) return `Coords: ${latitude}, ${longitude}`;
+      return 'Untitled Location';
+    }
+    case 'event': {
+      const { title } = config.data.event;
+      return title.trim() ? `Event: ${title.trim()}` : 'Untitled Event';
+    }
+    default:
+      return 'QR Code';
   }
 }

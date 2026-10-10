@@ -94,6 +94,58 @@ export function useQRGenerator() {
     }));
   }, []);
 
+  const updateSms = useCallback((fields: Partial<QRConfig['data']['sms']>) => {
+    setConfig((prev) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        sms: {
+          ...prev.data.sms,
+          ...fields
+        }
+      }
+    }));
+  }, []);
+
+  const updateContact = useCallback((fields: Partial<QRConfig['data']['contact']>) => {
+    setConfig((prev) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        contact: {
+          ...prev.data.contact,
+          ...fields
+        }
+      }
+    }));
+  }, []);
+
+  const updateLocation = useCallback((fields: Partial<QRConfig['data']['location']>) => {
+    setConfig((prev) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        location: {
+          ...prev.data.location,
+          ...fields
+        }
+      }
+    }));
+  }, []);
+
+  const updateEvent = useCallback((fields: Partial<QRConfig['data']['event']>) => {
+    setConfig((prev) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        event: {
+          ...prev.data.event,
+          ...fields
+        }
+      }
+    }));
+  }, []);
+
   const updateOptions = useCallback((options: Partial<QROptions>) => {
     setConfig((prev) => ({
       ...prev,
@@ -139,6 +191,10 @@ export function useQRGenerator() {
     updateEmail,
     updatePhone,
     updateWifi,
+    updateSms,
+    updateContact,
+    updateLocation,
+    updateEvent,
     updateOptions,
     applyPreset,
     resetConfig,

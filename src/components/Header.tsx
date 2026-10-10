@@ -1,89 +1,99 @@
 import React from 'react';
-import { QrCode, Sun, Moon, Info, Sparkles } from 'lucide-react';
+import { QrCode, Sun, Moon, Info, Sparkles, History } from 'lucide-react';
 import { GithubIcon } from './Icons';
 
 interface HeaderProps {
+  activeView: 'generate' | 'history';
+  onSelectView: (view: 'generate' | 'history') => void;
+  historyCount: number;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
   onOpenAbout: () => void;
-  onScrollToPresets?: () => void;
-  historyCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
+  activeView,
+  onSelectView,
+  historyCount,
   theme,
   onToggleTheme,
-  onOpenAbout,
-  onScrollToPresets
+  onOpenAbout
 }) => {
   return (
     <header className="app-header">
       <div className="header-inner">
-        {/* Logo and Brand */}
-        <div className="brand-lockup">
+        {/* Brand Logo & Wordmark */}
+        <div className="brand-lockup" onClick={() => onSelectView('generate')} role="button" tabIndex={0}>
           <div className="brand-logo-icon">
-            <QrCode size={24} />
-            <span className="logo-glow" />
+            <QrCode size={20} />
           </div>
-
           <div className="brand-titles">
             <div className="brand-name-row">
               <span className="brand-name">QRForge</span>
-              <span className="gdg-badge">GDG SRM • Frontend Challenge 2026</span>
+              <span className="brand-tagline-badge">Studio</span>
             </div>
-            <p className="brand-subtitle">Generate. Customize. Share.</p>
           </div>
         </div>
 
-        {/* Header Actions / Navigation */}
-        <div className="header-actions">
-          {onScrollToPresets && (
-            <button
-              type="button"
-              className="header-action-btn desktop-only"
-              onClick={onScrollToPresets}
-              title="Jump to Presets"
-            >
-              <Sparkles size={16} />
-              <span>Presets</span>
-            </button>
-          )}
+        {/* Minimal Navigation: Generate & History */}
+        <nav className="header-nav-tabs" aria-label="Main Navigation">
+          <button
+            type="button"
+            className={`nav-tab-btn ${activeView === 'generate' ? 'is-active' : ''}`}
+            onClick={() => onSelectView('generate')}
+          >
+            <Sparkles size={15} />
+            <span>Generate</span>
+          </button>
 
           <button
             type="button"
-            className="header-action-btn"
+            className={`nav-tab-btn ${activeView === 'history' ? 'is-active' : ''}`}
+            onClick={() => onSelectView('history')}
+          >
+            <History size={15} />
+            <span>History</span>
+            {historyCount > 0 && (
+              <span className="nav-count-badge">{historyCount}</span>
+            )}
+          </button>
+        </nav>
+
+        {/* Header Actions / Theme / About / GitHub */}
+        <div className="header-actions">
+          <button
+            type="button"
+            className="header-icon-btn"
             onClick={onOpenAbout}
-            title="About QRForge & Challenge Details"
+            title="About QRForge & Tech Specs"
             aria-label="About QRForge"
           >
             <Info size={16} />
-            <span className="desktop-only">About</span>
+            <span className="btn-label-desktop">About</span>
           </button>
 
           <a
-            href="https://github.com/GDG-SRM"
+            href="https://github.com/hARSh2018-arch/qrforge"
             target="_blank"
             rel="noopener noreferrer"
-            className="header-action-btn desktop-only"
-            title="GDG SRM GitHub"
-            aria-label="GDG SRM GitHub"
+            className="header-icon-btn"
+            title="GitHub Repository"
+            aria-label="GitHub Repository"
           >
             <GithubIcon size={16} />
-            <span>GitHub</span>
           </a>
 
-          {/* Theme Switcher */}
           <button
             type="button"
             className="theme-toggle-btn"
             onClick={onToggleTheme}
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
             aria-label="Toggle visual theme"
           >
-            {theme === 'dark' ? (
-              <Sun size={17} className="theme-icon sun-icon" />
+            {theme === 'light' ? (
+              <Moon size={16} className="theme-icon moon-icon" />
             ) : (
-              <Moon size={17} className="theme-icon moon-icon" />
+              <Sun size={16} className="theme-icon sun-icon" />
             )}
           </button>
         </div>

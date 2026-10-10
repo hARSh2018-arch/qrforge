@@ -1,5 +1,14 @@
-import React, { useRef } from 'react';
-import { Sliders, Palette, Image as ImageIcon, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import {
+  Sliders,
+  ChevronDown,
+  ChevronUp,
+  Image as ImageIcon,
+  Trash2,
+  RotateCcw,
+  AlertTriangle,
+  HelpCircle
+} from 'lucide-react';
 import type { QROptions, ErrorCorrectionLevel } from '../types/qr';
 
 interface CustomizationPanelProps {
@@ -14,16 +23,15 @@ const ERROR_CORRECTION_LEVELS: {
   recovery: string;
   desc: string;
 }[] = [
-  { level: 'L', name: 'Low', recovery: '~7%', desc: 'Lightest QR code density. Best for clean, high-contrast surfaces without logos.' },
-  { level: 'M', name: 'Medium', recovery: '~15%', desc: 'Standard default balance between scanning speed and damage tolerance.' },
-  { level: 'Q', name: 'Quartile', recovery: '~25%', desc: 'High resilience. Good for printed badges, outdoor posters, or subtle logos.' },
-  { level: 'H', name: 'High', recovery: '~30%', desc: 'Maximum error recovery. Recommended when embedding center logos.' }
+  { level: 'L', name: 'Low', recovery: '7%', desc: 'Fastest scan, low recovery. Ideal for clean surfaces without logos.' },
+  { level: 'M', name: 'Medium', recovery: '15%', desc: 'Balanced default for general use on print and web screens.' },
+  { level: 'Q', name: 'Quartile', recovery: '25%', desc: 'High damage recovery. Recommended for outdoor print or badges.' },
+  { level: 'H', name: 'High', recovery: '30%', desc: 'Maximum error correction. Required when embedding center logos.' }
 ];
 
-const POPULAR_COLORS = [
-  '#000000', '#ffffff', '#0f172a', '#1e293b',
-  '#0284c7', '#06b6d4', '#10b981', '#f59e0b',
-  '#ef4444', '#8b5cf6', '#ec4899', '#f0f9ff'
+const RESTRAINED_SWATCHES = [
+  '#000000', '#303631', '#18181b', '#385573', '#243D30',
+  '#FFFFFF', '#FBFAF7', '#F6F5F0', '#F2F5F2', '#E6E8E3'
 ];
 
 export const CustomizationPanel: React.FC<CustomizationPanelProps> = ({
@@ -31,6 +39,7 @@ export const CustomizationPanel: React.FC<CustomizationPanelProps> = ({
   onOptionsChange,
   onReset
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +52,7 @@ export const CustomizationPanel: React.FC<CustomizationPanelProps> = ({
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      alert('Logo file size should be less than 2MB.');
+      alert('Logo file size should be less than 2MB for optimal performance.');
       return;
     }
 
@@ -65,244 +74,270 @@ export const CustomizationPanel: React.FC<CustomizationPanelProps> = ({
   };
 
   return (
-    <div className="customization-panel-container">
-      <div className="panel-header-row">
+    <div className="custom-panel-wrapper">
+      <button
+        type="button"
+        className="custom-accordion-toggle"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+      >
         <div className="flex-align-center gap-2">
-          <Sliders size={16} className="accent-icon" />
-          <h3 className="panel-title">QR Customization</h3>
+          <Sliders size={16} className="panel-toggle-icon" />
+          <span className="panel-toggle-title">Custom Styling & Settings</span>
+          <span className="panel-toggle-summary">
+            {options.size}px • Margin {options.margin} • ECC {options.errorCorrection}
+          </span>
         </div>
-        <button
-          type="button"
-          className="reset-btn"
-          onClick={onReset}
-          title="Reset all settings to default"
-        >
-          <RotateCcw size={13} />
-          <span>Reset Defaults</span>
-        </button>
-      </div>
-
-      {/* Colors Section */}
-      <div className="custom-section">
-        <div className="section-label-row">
-          <div className="flex-align-center gap-1.5">
-            <Palette size={14} className="accent-icon-muted" />
-            <span className="section-subtitle">Color Palette</span>
-          </div>
+        <div className="flex-align-center gap-2">
+          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
+      </button>
 
-        <div className="color-pickers-grid">
-          {/* Foreground Color */}
-          <div className="color-picker-card">
-            <label htmlFor="fg-color" className="color-label">Foreground (Pattern)</label>
-            <div className="color-input-combo">
-              <input
-                id="fg-color"
-                type="color"
-                className="native-color-picker"
-                value={options.foreground}
-                onChange={(e) => onOptionsChange({ foreground: e.target.value, presetId: undefined })}
-              />
-              <input
-                type="text"
-                className="hex-input"
-                value={options.foreground.toUpperCase()}
-                onChange={(e) => {
-                  let val = e.target.value;
-                  if (!val.startsWith('#')) val = '#' + val;
-                  onOptionsChange({ foreground: val, presetId: undefined });
-                }}
-                maxLength={7}
-                spellCheck="false"
-              />
-            </div>
-            <div className="swatch-row">
-              {POPULAR_COLORS.slice(0, 6).map((c) => (
-                <button
-                  key={`fg-${c}`}
-                  type="button"
-                  className={`mini-swatch ${options.foreground.toLowerCase() === c.toLowerCase() ? 'active' : ''}`}
-                  style={{ backgroundColor: c }}
-                  onClick={() => onOptionsChange({ foreground: c, presetId: undefined })}
-                  title={c}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Background Color */}
-          <div className="color-picker-card">
-            <label htmlFor="bg-color" className="color-label">Background</label>
-            <div className="color-input-combo">
-              <input
-                id="bg-color"
-                type="color"
-                className="native-color-picker"
-                value={options.background}
-                onChange={(e) => onOptionsChange({ background: e.target.value, presetId: undefined })}
-              />
-              <input
-                type="text"
-                className="hex-input"
-                value={options.background.toUpperCase()}
-                onChange={(e) => {
-                  let val = e.target.value;
-                  if (!val.startsWith('#')) val = '#' + val;
-                  onOptionsChange({ background: val, presetId: undefined });
-                }}
-                maxLength={7}
-                spellCheck="false"
-              />
-            </div>
-            <div className="swatch-row">
-              {POPULAR_COLORS.slice(6, 12).map((c) => (
-                <button
-                  key={`bg-${c}`}
-                  type="button"
-                  className={`mini-swatch ${options.background.toLowerCase() === c.toLowerCase() ? 'active' : ''}`}
-                  style={{ backgroundColor: c }}
-                  onClick={() => onOptionsChange({ background: c, presetId: undefined })}
-                  title={c}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Size and Margin Sliders */}
-      <div className="custom-section">
-        <div className="slider-controls-grid">
-          {/* Size */}
-          <div className="slider-card">
-            <div className="slider-header">
-              <label htmlFor="qr-size-slider" className="color-label">Export Canvas Size</label>
-              <span className="slider-val-badge">{options.size} × {options.size} px</span>
-            </div>
-            <input
-              id="qr-size-slider"
-              type="range"
-              min={256}
-              max={1024}
-              step={32}
-              value={options.size}
-              onChange={(e) => onOptionsChange({ size: Number(e.target.value) })}
-              className="range-slider"
-            />
-            <div className="slider-range-labels">
-              <span>256px</span>
-              <span>512px</span>
-              <span>1024px</span>
-            </div>
-          </div>
-
-          {/* Margin */}
-          <div className="slider-card">
-            <div className="slider-header">
-              <label htmlFor="qr-margin-slider" className="color-label">Quiet Zone Margin</label>
-              <span className="slider-val-badge">{options.margin} blocks</span>
-            </div>
-            <input
-              id="qr-margin-slider"
-              type="range"
-              min={0}
-              max={8}
-              step={1}
-              value={options.margin}
-              onChange={(e) => onOptionsChange({ margin: Number(e.target.value) })}
-              className="range-slider"
-            />
-            <div className="slider-range-labels">
-              <span>0 (None)</span>
-              <span>4 (Standard)</span>
-              <span>8 (Wide)</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Error Correction Selection */}
-      <div className="custom-section">
-        <div className="section-label-row">
-          <span className="section-subtitle">Error Correction Level (ECC)</span>
-        </div>
-
-        <div className="ecc-grid" role="radiogroup" aria-label="Error Correction Level">
-          {ERROR_CORRECTION_LEVELS.map((item) => {
-            const isSelected = options.errorCorrection === item.level;
-            return (
-              <button
-                key={item.level}
-                type="button"
-                className={`ecc-card ${isSelected ? 'ecc-active' : ''}`}
-                onClick={() => onOptionsChange({ errorCorrection: item.level })}
-                role="radio"
-                aria-checked={isSelected}
-              >
-                <div className="ecc-header-row">
-                  <span className="ecc-badge">{item.level}</span>
-                  <span className="ecc-name">{item.name}</span>
-                  <span className="ecc-recovery">{item.recovery}</span>
-                </div>
-                <p className="ecc-desc">{item.desc}</p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Optional Logo Center Upload */}
-      <div className="custom-section">
-        <div className="section-label-row">
-          <div className="flex-align-center gap-1.5">
-            <ImageIcon size={14} className="accent-icon-muted" />
-            <span className="section-subtitle">Center Logo (Optional)</span>
-          </div>
-          {options.logoUrl && (
+      {isOpen && (
+        <div className="custom-accordion-body">
+          {/* Header row with reset */}
+          <div className="custom-header-row">
+            <span className="custom-heading-text">Fine-tune appearance and export parameters</span>
             <button
               type="button"
-              className="remove-logo-btn"
-              onClick={handleRemoveLogo}
-              title="Remove logo"
+              className="reset-defaults-btn"
+              onClick={onReset}
+              title="Return to standard high-contrast defaults"
             >
-              <Trash2 size={13} />
-              <span>Remove</span>
+              <RotateCcw size={13} />
+              <span>Reset Defaults</span>
             </button>
-          )}
-        </div>
+          </div>
 
-        {!options.logoUrl ? (
-          <label className="logo-dropzone" htmlFor="logo-file-input">
-            <input
-              id="logo-file-input"
-              ref={fileInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              onChange={handleLogoUpload}
-              className="sr-only"
-            />
-            <ImageIcon size={24} className="dropzone-icon" />
-            <div className="dropzone-text">
-              <span className="dropzone-title">Upload Center Logo / Watermark</span>
-              <span className="dropzone-sub">PNG, SVG or JPG (max 2MB)</span>
+          {/* Color pickers */}
+          <div className="custom-section-block">
+            <label className="section-label-small">Colors</label>
+            <div className="color-inputs-duo">
+              {/* Foreground */}
+              <div className="color-field-card">
+                <div className="field-header">
+                  <span className="color-field-name">Pattern (Foreground)</span>
+                  <span className="color-hex-tag">{options.foreground.toUpperCase()}</span>
+                </div>
+                <div className="color-picker-input-row">
+                  <input
+                    type="color"
+                    className="native-color-circle"
+                    value={options.foreground}
+                    onChange={(e) => onOptionsChange({ foreground: e.target.value, presetId: undefined })}
+                    aria-label="Foreground Pattern Color"
+                  />
+                  <input
+                    type="text"
+                    className="base-input hex-code-input"
+                    value={options.foreground.toUpperCase()}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (!val.startsWith('#')) val = '#' + val;
+                      onOptionsChange({ foreground: val, presetId: undefined });
+                    }}
+                    maxLength={7}
+                    spellCheck="false"
+                  />
+                </div>
+                <div className="swatches-quick-row">
+                  {RESTRAINED_SWATCHES.slice(0, 5).map((color) => (
+                    <button
+                      key={`fg-${color}`}
+                      type="button"
+                      className={`swatch-circle-btn ${options.foreground.toLowerCase() === color.toLowerCase() ? 'active' : ''}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => onOptionsChange({ foreground: color, presetId: undefined })}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Background */}
+              <div className="color-field-card">
+                <div className="field-header">
+                  <span className="color-field-name">Background</span>
+                  <span className="color-hex-tag">{options.background.toUpperCase()}</span>
+                </div>
+                <div className="color-picker-input-row">
+                  <input
+                    type="color"
+                    className="native-color-circle"
+                    value={options.background}
+                    onChange={(e) => onOptionsChange({ background: e.target.value, presetId: undefined })}
+                    aria-label="Background Color"
+                  />
+                  <input
+                    type="text"
+                    className="base-input hex-code-input"
+                    value={options.background.toUpperCase()}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (!val.startsWith('#')) val = '#' + val;
+                      onOptionsChange({ background: val, presetId: undefined });
+                    }}
+                    maxLength={7}
+                    spellCheck="false"
+                  />
+                </div>
+                <div className="swatches-quick-row">
+                  {RESTRAINED_SWATCHES.slice(5, 10).map((color) => (
+                    <button
+                      key={`bg-${color}`}
+                      type="button"
+                      className={`swatch-circle-btn ${options.background.toLowerCase() === color.toLowerCase() ? 'active' : ''}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => onOptionsChange({ background: color, presetId: undefined })}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
-          </label>
-        ) : (
-          <div className="logo-preview-card">
-            <img src={options.logoUrl} alt="Center Logo" className="logo-thumb-preview" />
-            <div className="logo-details">
-              <span className="logo-filename">{options.logoName || 'custom-logo.png'}</span>
-              <span className="logo-status">Embedded with auto-padded background badge</span>
+          </div>
+
+          {/* Size and Margins */}
+          <div className="custom-section-block">
+            <div className="sliders-duo-grid">
+              {/* Size Slider */}
+              <div className="slider-control-group">
+                <div className="field-header">
+                  <label htmlFor="export-size-slider" className="section-label-small">
+                    Export Resolution
+                  </label>
+                  <span className="slider-current-badge">{options.size} × {options.size} px</span>
+                </div>
+                <input
+                  id="export-size-slider"
+                  type="range"
+                  min={256}
+                  max={1024}
+                  step={32}
+                  value={options.size}
+                  onChange={(e) => onOptionsChange({ size: Number(e.target.value) })}
+                  className="base-range-slider"
+                />
+                <div className="range-endpoints">
+                  <span>256px (Compact)</span>
+                  <span>512px (Standard)</span>
+                  <span>1024px (Print HD)</span>
+                </div>
+              </div>
+
+              {/* Margin Slider */}
+              <div className="slider-control-group">
+                <div className="field-header">
+                  <label htmlFor="margin-slider" className="section-label-small">
+                    Quiet Zone Margin
+                  </label>
+                  <span className="slider-current-badge">{options.margin} blocks</span>
+                </div>
+                <input
+                  id="margin-slider"
+                  type="range"
+                  min={0}
+                  max={8}
+                  step={1}
+                  value={options.margin}
+                  onChange={(e) => onOptionsChange({ margin: Number(e.target.value) })}
+                  className="base-range-slider"
+                />
+                <div className="range-endpoints">
+                  <span>0 (None)</span>
+                  <span>3 (Recommended)</span>
+                  <span>8 (Wide)</span>
+                </div>
+              </div>
             </div>
-            {options.errorCorrection !== 'H' && options.errorCorrection !== 'Q' && (
-              <div className="logo-warning-note">
-                <AlertTriangle size={13} />
-                <span>Recommendation: High (H) error correction active for maximum reliability.</span>
+          </div>
+
+          {/* Error Correction Level */}
+          <div className="custom-section-block">
+            <div className="field-header">
+              <label className="section-label-small">Error Correction Level (ECC)</label>
+              <span className="field-hint flex-align-center gap-1">
+                <HelpCircle size={12} />
+                Higher levels improve scan resilience if damaged
+              </span>
+            </div>
+
+            <div className="ecc-selector-row" role="radiogroup" aria-label="Error Correction Level">
+              {ERROR_CORRECTION_LEVELS.map((item) => {
+                const isSelected = options.errorCorrection === item.level;
+                return (
+                  <button
+                    key={item.level}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    className={`ecc-button-card ${isSelected ? 'is-selected' : ''}`}
+                    onClick={() => onOptionsChange({ errorCorrection: item.level })}
+                  >
+                    <div className="ecc-button-header">
+                      <span className="ecc-level-pill">{item.level}</span>
+                      <span className="ecc-name-text">{item.name}</span>
+                      <span className="ecc-recovery-text">{item.recovery}</span>
+                    </div>
+                    <p className="ecc-desc-text">{item.desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Center Logo */}
+          <div className="custom-section-block">
+            <div className="field-header">
+              <label className="section-label-small">Center Logo / Icon</label>
+              <span className="field-hint">Embedded in center with padded safe badge</span>
+            </div>
+
+            {!options.logoUrl ? (
+              <label className="logo-upload-dropzone" htmlFor="logo-file-input">
+                <input
+                  id="logo-file-input"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                  onChange={handleLogoUpload}
+                  className="sr-only"
+                />
+                <ImageIcon size={20} className="dropzone-icon-muted" />
+                <div className="dropzone-text-block">
+                  <span className="dropzone-primary-text">Upload Logo or Watermark</span>
+                  <span className="dropzone-secondary-text">PNG, SVG, or JPG (max 2MB)</span>
+                </div>
+              </label>
+            ) : (
+              <div className="logo-active-preview-card">
+                <img src={options.logoUrl} alt="Center Logo" className="logo-thumbnail-preview" />
+                <div className="logo-info-col">
+                  <span className="logo-filename-text">{options.logoName || 'Uploaded Logo'}</span>
+                  <span className="logo-status-text">Centered with error-correction auto-boosted to High</span>
+                </div>
+                <button
+                  type="button"
+                  className="logo-remove-btn"
+                  onClick={handleRemoveLogo}
+                  title="Remove logo"
+                  aria-label="Remove logo"
+                >
+                  <Trash2 size={14} />
+                  <span>Remove</span>
+                </button>
+              </div>
+            )}
+
+            {options.logoUrl && options.errorCorrection !== 'H' && options.errorCorrection !== 'Q' && (
+              <div className="reliability-warning-banner">
+                <AlertTriangle size={14} />
+                <span>Logos obscure center QR blocks: High (H) error correction is strongly recommended.</span>
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

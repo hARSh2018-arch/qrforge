@@ -56,6 +56,30 @@ export const PRESETS: QRPreset[] = [
     foreground: '#18181b',
     background: '#fafafa',
     tag: 'Subtle'
+  },
+  {
+    id: 'soft-blue',
+    name: 'Soft Blue',
+    description: 'Muted slate blue on warm ivory',
+    foreground: '#385573',
+    background: '#F6F5F0',
+    tag: 'Restrained'
+  },
+  {
+    id: 'forest',
+    name: 'Forest',
+    description: 'Deep pine on gentle sage white',
+    foreground: '#243D30',
+    background: '#F2F5F2',
+    tag: 'Earthy'
+  },
+  {
+    id: 'charcoal',
+    name: 'Warm Charcoal',
+    description: 'Dark charcoal pattern on warm white',
+    foreground: '#303631',
+    background: '#FBFAF7',
+    tag: 'Premium'
   }
 ];
 
@@ -78,6 +102,33 @@ export const DEFAULT_CONFIG = {
       password: 'frontend_mastery_2026',
       encryption: 'WPA' as const,
       hidden: false
+    },
+    sms: {
+      countryCode: '+91',
+      phoneNumber: '9876543210',
+      message: 'Hello from QRForge!'
+    },
+    contact: {
+      firstName: 'Alex',
+      lastName: 'Morgan',
+      organization: 'GDG SRM',
+      phone: '+919876543210',
+      email: 'alex@example.com',
+      url: 'https://example.com'
+    },
+    location: {
+      latitude: '12.8231',
+      longitude: '80.0442',
+      query: 'SRM Institute of Science and Technology'
+    },
+    event: {
+      title: 'GDG Tech Meetup 2026',
+      location: 'SRM University Tech Park',
+      startDate: '2026-11-15',
+      startTime: '10:00',
+      endDate: '2026-11-15',
+      endTime: '13:00',
+      description: 'Hands-on frontend development workshop and networking.'
     }
   },
   options: {

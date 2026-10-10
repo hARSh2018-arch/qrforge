@@ -4,6 +4,10 @@ import {
   validateEmail,
   validatePhone,
   validateWifi,
+  validateSms,
+  validateContact,
+  validateLocation,
+  validateEvent,
   generatePayload,
   getPayloadTitle,
   escapeWifiString
@@ -97,7 +101,57 @@ assert(
   'Wi-Fi payload standard MEBKM format generated'
 );
 
-console.log('\n--- 6. Testing Contrast & WCAG Scan Reliability ---');
+console.log('\n--- 6. Testing SMS, Contact, Location & Event Payloads ---');
+assert(validateSms('9876543210').isValid === true, 'Valid SMS phone number');
+assert(validateSms('').isValid === false, 'Empty SMS phone rejected');
+const smsConfig = {
+  ...DEFAULT_CONFIG,
+  type: 'sms',
+  data: {
+    ...DEFAULT_CONFIG.data,
+    sms: { countryCode: '+1', phoneNumber: '5551234567', message: 'Hello There' }
+  }
+};
+assert(generatePayload(smsConfig) === 'SMSTO:+15551234567:Hello There', 'SMS payload standard SMSTO format generated');
+
+assert(validateContact('John', 'Doe', '123456', 'john@example.com').isValid === true, 'Valid contact');
+assert(validateContact('', '', '', '').isValid === false, 'Empty contact rejected');
+const contactConfig = {
+  ...DEFAULT_CONFIG,
+  type: 'contact',
+  data: {
+    ...DEFAULT_CONFIG.data,
+    contact: { firstName: 'John', lastName: 'Doe', organization: 'Acme', phone: '+1234', email: 'j@example.com', url: 'https://j.com' }
+  }
+};
+const contactPayload = generatePayload(contactConfig);
+assert(contactPayload.includes('BEGIN:VCARD') && contactPayload.includes('FN:John Doe'), 'Contact vCard standard generated');
+
+assert(validateLocation('37.7749', '-122.4194', '').isValid === true, 'Valid coordinates');
+assert(validateLocation('', '', 'Times Square').isValid === true, 'Valid query location');
+assert(validateLocation('', '', '').isValid === false, 'Empty location rejected');
+
+assert(validateEvent('Conference', '2026-10-15').isValid === true, 'Valid event');
+assert(validateEvent('', '').isValid === false, 'Empty event rejected');
+const eventConfig = {
+  ...DEFAULT_CONFIG,
+  type: 'event',
+  data: {
+    ...DEFAULT_CONFIG.data,
+    event: { title: 'Conference', location: 'Hall 1', startDate: '2026-10-15', startTime: '10:00', endDate: '2026-10-15', endTime: '12:00', description: 'Annual meet' }
+  }
+};
+const eventPayload = generatePayload(eventConfig);
+assert(eventPayload.includes('BEGIN:VCALENDAR') && eventPayload.includes('SUMMARY:Conference'), 'Event iCalendar standard generated');
+
+assert(getPayloadTitle(emailConfig) === 'Email: test@example.com', 'getPayloadTitle formatted properly');
+
+console.log('\n--- 7. Testing Contrast & WCAG Scan Reliability ---');
+const rgb = hexToRgb('#ffffff');
+assert(rgb[0] === 255 && rgb[1] === 255 && rgb[2] === 255, 'hexToRgb parsed correctly');
+const lum = getRelativeLuminance(255, 255, 255);
+assert(lum === 1.0, 'White relative luminance is 1.0');
+
 const highContrast = analyzeContrast('#000000', '#ffffff');
 assert(highContrast.ratio >= 20, `Black on white contrast ratio is ~21:1 (actual: ${highContrast.ratio})`);
 assert(highContrast.status === 'optimal', 'Black on white status is optimal');
@@ -113,13 +167,15 @@ assert(scanTips.warnings.some(w => w.includes('Low contrast may affect QR scanni
 const logoScanTips = getScanReliabilityTips(highContrast, 'L', true, 3);
 assert(logoScanTips.warnings.some(w => w.includes('Center logo detected')), 'Center logo warning with low ECC');
 
-console.log('\n--- 7. Testing Presets ---');
+console.log('\n--- 8. Testing Presets ---');
 assert(PRESETS.length >= 5, `Defined at least 5 presets (actual: ${PRESETS.length})`);
 assert(PRESETS.some(p => p.id === 'classic'), 'Classic preset exists');
 assert(PRESETS.some(p => p.id === 'midnight'), 'Midnight preset exists');
 assert(PRESETS.some(p => p.id === 'ocean'), 'Ocean preset exists');
 assert(PRESETS.some(p => p.id === 'neon'), 'Neon preset exists');
 assert(PRESETS.some(p => p.id === 'minimal'), 'Minimal preset exists');
+assert(PRESETS.some(p => p.id === 'soft-blue'), 'Soft Blue preset exists');
+assert(PRESETS.some(p => p.id === 'forest'), 'Forest preset exists');
 
 console.log(`\n========================================`);
 console.log(`Results: ${passed} PASSED, ${failed} FAILED`);

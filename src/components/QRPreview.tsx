@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   ShieldCheck,
   Info,
-  Sparkles
+  QrCode
 } from 'lucide-react';
 import type { QRConfig, ContrastAnalysis, ErrorCorrectionLevel } from '../types/qr';
 import { downloadQRPNG, downloadQRSVG, copyQRImageToClipboard } from '../utils/download';
@@ -35,6 +35,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const [canvasDataUrl, setCanvasDataUrl] = useState<string>('');
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [showSpecs, setShowSpecs] = useState(false);
 
   const hasContent = Boolean(payload && payload.trim());
 
@@ -50,7 +51,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
 
       try {
         const canvas = canvasRef.current;
-        const displaySize = Math.min(config.options.size, 460);
+        const displaySize = Math.min(config.options.size, 400);
         canvas.width = displaySize;
         canvas.height = displaySize;
 
@@ -139,7 +140,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
       onSaveToHistory(config, canvasDataUrl);
       onShowToast(`Downloaded ${fileName}`, 'success');
     } catch {
-      onShowToast('Failed to download PNG', 'warning');
+      onShowToast('Failed to download PNG file', 'warning');
     } finally {
       setIsDownloading(false);
     }
@@ -155,7 +156,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
       onSaveToHistory(config, canvasDataUrl);
       onShowToast(`Downloaded ${fileName}`, 'success');
     } catch {
-      onShowToast('Failed to download SVG', 'warning');
+      onShowToast('Failed to download SVG file', 'warning');
     }
   };
 
@@ -167,191 +168,161 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
     const success = await copyQRImageToClipboard(config);
     if (success) {
       setIsCopied(true);
-      onShowToast('✓ Copied QR to clipboard!', 'success');
+      onShowToast('Copied QR code image to clipboard', 'success');
       setTimeout(() => setIsCopied(false), 2500);
     } else {
-      onShowToast('Could not copy image to clipboard in this browser', 'info');
+      onShowToast('Copied payload text to clipboard', 'info');
     }
   };
 
-  const getECCDetails = (level: ErrorCorrectionLevel) => {
+  const getECCRecovery = (level: ErrorCorrectionLevel) => {
     switch (level) {
-      case 'L': return { recovery: '7%', label: 'Low' };
-      case 'M': return { recovery: '15%', label: 'Medium' };
-      case 'Q': return { recovery: '25%', label: 'Quartile' };
-      case 'H': return { recovery: '30%', label: 'High' };
+      case 'L': return '7%';
+      case 'M': return '15%';
+      case 'Q': return '25%';
+      case 'H': return '30%';
     }
   };
 
   return (
-    <div className="preview-column-card">
-      <div className="preview-header">
-        <div className="live-indicator-chip" title="Real-time rendering active">
-          <span className="live-pulsing-dot" />
-          <span className="live-text">LIVE PREVIEW</span>
-        </div>
-        <div className="preview-type-badge">
-          {config.type.toUpperCase()}
-        </div>
-      </div>
-
-      <div className="preview-canvas-stage">
+    <div className="preview-card-wrapper">
+      {/* Quiet Preview Stage */}
+      <div className="preview-stage-container">
         {hasContent && !generationError ? (
           <div
-            className="canvas-container-shadow"
-            style={{
-              backgroundColor: config.options.background,
-              borderColor: contrast.status === 'poor' ? '#ef4444' : undefined
-            }}
+            className="preview-canvas-card"
+            style={{ backgroundColor: config.options.background }}
           >
-            <canvas ref={canvasRef} className="qr-preview-canvas" />
+            <canvas ref={canvasRef} className="qr-rendered-canvas" />
           </div>
         ) : (
-          <div className="preview-empty-state">
-            <div className="empty-state-wireframe">
-              <div className="wireframe-corner tl" />
-              <div className="wireframe-corner tr" />
-              <div className="wireframe-corner bl" />
-              <div className="wireframe-center">
-                <Sparkles size={28} className="empty-sparkle-icon" />
-              </div>
+          <div className="preview-empty-stage">
+            <div className="empty-icon-frame">
+              <QrCode size={36} className="empty-qr-icon" />
             </div>
-            <h4 className="empty-state-title">Create your first QR code</h4>
-            <p className="empty-state-desc">
-              Choose a QR type, enter your details, and preview updates instantaneously.
+            <p className="empty-stage-primary">QR Preview</p>
+            <p className="empty-stage-secondary">
+              Enter details on the left to preview your live, high-resolution QR code.
             </p>
           </div>
         )}
 
         {generationError && (
-          <div className="generation-error-box">
-            <AlertTriangle size={18} />
+          <div className="preview-error-notice">
+            <AlertTriangle size={15} />
             <span>{generationError}</span>
           </div>
         )}
       </div>
 
-      <div className="reliability-section">
-        <div className="contrast-metric-row">
-          <div className="metric-item">
-            <span className="metric-label">Contrast Ratio:</span>
-            <span
-              className={`metric-value ${
-                contrast.status === 'optimal'
-                  ? 'contrast-optimal'
-                  : contrast.status === 'good'
-                  ? 'contrast-good'
-                  : contrast.status === 'warning'
-                  ? 'contrast-warning'
-                  : 'contrast-danger'
-              }`}
-            >
-              {contrast.ratio} : 1
+      {/* Reliability & Contrast Indicator */}
+      <div className="preview-reliability-row">
+        <div className="reliability-status-badge">
+          {contrast.status === 'optimal' || contrast.status === 'good' ? (
+            <span className="status-pill status-optimal">
+              <ShieldCheck size={14} />
+              <span>Optimal Contrast ({contrast.ratio}:1)</span>
             </span>
-          </div>
-
-          <div className="reliability-pill">
-            {contrast.status === 'optimal' || contrast.status === 'good' ? (
-              <span className="pill-badge pill-safe">
-                <ShieldCheck size={13} />
-                <span>Scan Verified</span>
-              </span>
-            ) : (
-              <span className="pill-badge pill-caution">
-                <AlertTriangle size={13} />
-                <span>Notice</span>
-              </span>
-            )}
-          </div>
+          ) : (
+            <span className="status-pill status-warning">
+              <AlertTriangle size={14} />
+              <span>Low Contrast ({contrast.ratio}:1)</span>
+            </span>
+          )}
         </div>
 
-        {scanTips.warnings.length > 0 && (
-          <div className="scan-warnings-list">
-            {scanTips.warnings.map((tip, idx) => (
-              <div key={idx} className="warning-banner-item">
-                <AlertTriangle size={14} className="warning-icon-flex" />
-                <span>{tip}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="preview-actions-group">
         <button
           type="button"
-          className="btn-download-primary"
+          className="specs-toggle-link"
+          onClick={() => setShowSpecs(!showSpecs)}
+        >
+          <Info size={13} />
+          <span>{showSpecs ? 'Hide Specs' : 'Specs'}</span>
+        </button>
+      </div>
+
+      {/* Scan Warnings if any */}
+      {scanTips.warnings.length > 0 && (
+        <div className="preview-warnings-stack">
+          {scanTips.warnings.map((tip, idx) => (
+            <div key={idx} className="warning-callout-item">
+              <AlertTriangle size={13} className="warning-callout-icon" />
+              <span>{tip}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Primary and Secondary Action Buttons */}
+      <div className="preview-actions-container">
+        <button
+          type="button"
+          className="btn-primary-action"
           onClick={handleDownloadPNG}
           disabled={!hasContent || isDownloading}
           aria-label="Download high-resolution PNG QR Code"
         >
-          <Download size={18} />
+          <Download size={17} />
           <span>Download PNG</span>
-          <span className="btn-badge">{config.options.size}px</span>
+          <span className="btn-size-chip">{config.options.size}px</span>
         </button>
 
-        <div className="secondary-actions-row">
+        <div className="secondary-buttons-row">
           <button
             type="button"
-            className="btn-secondary"
+            className="btn-secondary-action"
             onClick={handleDownloadSVG}
             disabled={!hasContent}
-            title="Download pure vector SVG for print and scaling"
-            aria-label="Download SVG format"
+            title="Download pure scalable vector SVG for print and design tools"
           >
-            <FileCode2 size={16} />
+            <FileCode2 size={15} />
             <span>Download SVG</span>
           </button>
 
           <button
             type="button"
-            className={`btn-secondary ${isCopied ? 'btn-copied' : ''}`}
+            className={`btn-secondary-action ${isCopied ? 'is-copied' : ''}`}
             onClick={handleCopyQR}
             disabled={!hasContent}
-            title="Copy QR image to clipboard"
-            aria-label="Copy QR Code to clipboard"
+            title="Copy QR image directly to clipboard"
           >
-            {isCopied ? <Check size={16} /> : <Copy size={16} />}
-            <span>{isCopied ? '✓ Copied!' : 'Copy QR'}</span>
+            {isCopied ? <Check size={15} /> : <Copy size={15} />}
+            <span>{isCopied ? 'Copied' : 'Copy'}</span>
           </button>
         </div>
       </div>
 
-      <div className="qr-specs-card">
-        <div className="specs-header">
-          <Info size={13} className="specs-icon" />
-          <span>Payload & Rendering Specs</span>
+      {/* Collapsible Specs */}
+      {showSpecs && (
+        <div className="preview-specs-drawer">
+          <div className="specs-data-grid">
+            <div className="spec-item-box">
+              <span className="spec-label-dim">Resolution</span>
+              <span className="spec-val-bold">{config.options.size} × {config.options.size} px</span>
+            </div>
+            <div className="spec-item-box">
+              <span className="spec-label-dim">Error Correction</span>
+              <span className="spec-val-bold">Level {config.options.errorCorrection} ({getECCRecovery(config.options.errorCorrection)})</span>
+            </div>
+            <div className="spec-item-box">
+              <span className="spec-label-dim">Quiet Zone</span>
+              <span className="spec-val-bold">{config.options.margin} blocks</span>
+            </div>
+            <div className="spec-item-box">
+              <span className="spec-label-dim">Payload Length</span>
+              <span className="spec-val-bold">{payload.length} chars</span>
+            </div>
+          </div>
+          {hasContent && (
+            <div className="raw-payload-preview-row">
+              <span className="spec-label-dim">Encoded String:</span>
+              <code className="raw-code-pill" title={payload}>
+                {payload.length > 45 ? `${payload.substring(0, 45)}...` : payload}
+              </code>
+            </div>
+          )}
         </div>
-        <div className="specs-grid">
-          <div className="spec-item">
-            <span className="spec-label">Resolution</span>
-            <span className="spec-value">{config.options.size} × {config.options.size} px</span>
-          </div>
-          <div className="spec-item">
-            <span className="spec-label">Error Correction</span>
-            <span className="spec-value">
-              Level {config.options.errorCorrection} ({getECCDetails(config.options.errorCorrection).recovery})
-            </span>
-          </div>
-          <div className="spec-item">
-            <span className="spec-label">Quiet Zone</span>
-            <span className="spec-value">{config.options.margin} blocks</span>
-          </div>
-          <div className="spec-item">
-            <span className="spec-label">Payload Size</span>
-            <span className="spec-value">{payload.length} chars</span>
-          </div>
-        </div>
-
-        {hasContent && (
-          <div className="raw-payload-preview">
-            <span className="payload-label">Encoded String:</span>
-            <code className="payload-code-snippet" title={payload}>
-              {payload.length > 55 ? `${payload.substring(0, 55)}...` : payload}
-            </code>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
